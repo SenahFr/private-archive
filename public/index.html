@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Private Archive</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- LOGIN FORM -->
+    <div id="login">
+        <h2>Login to post</h2>
+        <input id="username" placeholder="Username"><br><br>
+        <input id="password" type="password" placeholder="Password"><br><br>
+        <button onclick="login()">Login</button>
+        <p id="loginError" style="color:red;"></p>
+    </div>
+
+    <!-- POST FORM: Only visible after login -->
+    <div id="app" style="display:none;">
+        <h2>Post something</h2>
+        <textarea id="textPost" placeholder="Write something..."></textarea><br><br>
+        <input type="file" id="mediaInput"><br><br>
+        <button onclick="createPost()">Post</button>
+    </div>
+
+    <!-- POSTS FEED: Always visible -->
+    <h1>Archive Feed</h1>
+    <div id="posts"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
