@@ -43,19 +43,26 @@ async function createPost() {
 
 async function addComment(postId) {
     const commentText = document.getElementById("comment-" + postId).value;
+    const name = document.getElementById("name-" + postId).value;
+
     if (!commentText) return;
+
     try {
         const res = await fetch("/comment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ postId, comment: commentText })
+            body: JSON.stringify({
+                postId,
+                comment: commentText,
+                username: name
+            })
         });
+
         if (res.ok) loadPosts();
     } catch (err) {
         console.error("Comment error:", err);
     }
 }
-
 async function loadPosts() {
     try {
         const res = await fetch("/posts");
@@ -63,38 +70,70 @@ async function loadPosts() {
         const container = document.getElementById("posts");
         container.innerHTML = "";
 
-        // posts array may be empty or undefined
         (data.posts || []).forEach(post => {
+
+            let mediaHTML = "";
+
+            if (post.media) {
+                const file = post.media.toLowerCase();
+
+                if (file.endsWith(".jpg") || file.endsWith(".jpeg") || file.endsWith(".png") || file.endsWith(".gif")) {
+                    mediaHTML = `<img src="/uploads/${post.media}" style="max-width:300px"><br>`;
+                } 
+                else if (file.endsWith(".mp4") || file.endsWith(".webm")) {
+                    mediaHTML = `
+                        <video controls style="max-width:300px">
+                            <source src="/uploads/${post.media}" type="video/mp4">
+                        </video><br>
+                    `;
+                } 
+                else if (file.endsWith(".mp3") || file.endsWith(".wav")) {
+                    mediaHTML = `
+                        <audio controls>
+                            <source src="/uploads/${post.media}" type="audio/mpeg">
+                        </audio><br>
+                    `;
+                }
+            }
+
             let div = document.createElement("div");
             div.className = "post";
             div.innerHTML = `
                 <b>${post.username}</b> (${new Date(post.timestamp).toLocaleString()})<br>
-                ${post.text}<br>
-                ${post.media ? `<img src="/uploads/${post.media}" style="max-width:200px"><br>` : ""}
+                ${post.text || ""}<br>
+                ${mediaHTML}
             `;
 
-            // show comment input only if logged in
-            if (document.getElementById("app").style.display === "block") {
-                const commentInput = document.createElement("input");
-                commentInput.id = "comment-" + post.id;
-                commentInput.placeholder = "Add comment";
-                const commentButton = document.createElement("button");
-                commentButton.innerText = "Comment";
-                commentButton.onclick = () => addComment(post.id);
-                div.appendChild(commentInput);
-                div.appendChild(commentButton);
-            }
+            // PUBLIC COMMENT INPUT
+            const nameInput = document.createElement("input");
+            nameInput.placeholder = "Your name (optional)";
+            nameInput.id = "name-" + post.id;
 
-            // existing comments
-            (data.comments || []).filter(c => c.post_id === post.id).forEach(c => {
-                let comDiv = document.createElement("div");
-                comDiv.className = "comment";
-                comDiv.innerText = `${c.username}: ${c.comment}`;
-                div.appendChild(comDiv);
-            });
+            const commentInput = document.createElement("input");
+            commentInput.placeholder = "Add comment";
+            commentInput.id = "comment-" + post.id;
+
+            const commentButton = document.createElement("button");
+            commentButton.innerText = "Comment";
+            commentButton.onclick = () => addComment(post.id);
+
+            div.appendChild(nameInput);
+            div.appendChild(commentInput);
+            div.appendChild(commentButton);
+
+            // Existing comments
+            (data.comments || [])
+                .filter(c => c.post_id === post.id)
+                .forEach(c => {
+                    let comDiv = document.createElement("div");
+                    comDiv.className = "comment";
+                    comDiv.innerText = `${c.username}: ${c.comment}`;
+                    div.appendChild(comDiv);
+                });
 
             container.appendChild(div);
         });
+
     } catch (err) {
         console.error("Load posts error:", err);
     }

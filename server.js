@@ -94,12 +94,28 @@ app.post("/post", upload.single("media"), (req, res) => {
 });
 
 app.post("/comment", (req, res) => {
-  if (!req.session.user) return res.status(401).json({ success: false });
-  const { postId, comment } = req.body;
-  db.run(`INSERT INTO comments (post_id, username, comment) VALUES (?, ?, ?)`, [postId, req.session.user, comment], function(err) {
-    if (err) return res.status(500).json({ success: false });
-    res.json({ success: true });
-  });
+
+  const { postId, comment, username } = req.body;
+
+  if (!postId || !comment) {
+    return res.status(400).json({ success: false });
+  }
+
+  const commenter = username && username.trim() !== ""
+    ? username.trim()
+    : "Anonymous";
+
+  db.run(
+    `INSERT INTO comments (post_id, username, comment) VALUES (?, ?, ?)`,
+    [postId, commenter, comment],
+    function(err) {
+      if (err) {
+        console.error("COMMENT INSERT ERROR:", err);
+        return res.status(500).json({ success: false });
+      }
+      res.json({ success: true });
+    }
+  );
 });
 
 app.get("/posts", (req, res) => {
