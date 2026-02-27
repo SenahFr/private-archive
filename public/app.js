@@ -168,6 +168,22 @@ async function loadPosts() {
     } catch (err) {
         console.error("Load posts error:", err);
     }
+ document.getElementById("logoutBtn").onclick = async () => {
+  try {
+    const res = await fetch("/logout", {
+      method: "POST",
+      credentials: "same-origin"
+    });
+    if (res.ok) {
+      document.getElementById("app").style.display = "none";
+      document.getElementById("login").style.display = "block";
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+    }
+  } catch (err) {
+    console.error("Logout error:", err);
+  }
+};
 }
 // Load feed immediately, even before login
 loadPosts();

@@ -4,6 +4,7 @@ const fs = require("fs");
 const session = require("express-session");
 const sqlite3 = require("sqlite3").verbose();
 const multer = require("multer");
+const bcrypt = require("bcrypt");
 
 const app = express();
 const PORT = 3000;
@@ -23,6 +24,14 @@ if (!fs.existsSync("database")) fs.mkdirSync("database");
 const db = new sqlite3.Database("./database/archive.db");
 
 db.serialize(() => {
+
+db.run(`CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE,
+  password TEXT,
+  isAdmin INTEGER DEFAULT 0
+)`);
+
   db.run(`CREATE TABLE IF NOT EXISTS posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT,
@@ -38,6 +47,19 @@ db.serialize(() => {
     comment TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
+});
+
+const initialUsers = [
+  { username: "user1", password: "password1", isAdmin: 1 },
+  { username: "user2", password: "password2", isAdmin: 0 }
+];
+
+initialUsers.forEach(async (u) => {
+  const hashed = await bcrypt.hash(u.password, 10);
+  db.run(
+    "INSERT OR IGNORE INTO users (username, password, isAdmin) VALUES (?, ?, ?)",
+    [u.username, hashed, u.isAdmin]
+  );
 });
 
 // Hardcoded users
@@ -57,20 +79,30 @@ const upload = multer({ storage });
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
-  const user = users.find(
-    u => u.username === username && u.password === password
-  );
+  // Look up user in database
+  db.get("SELECT * FROM users WHERE username = ?", [username], async (err, user) => {
+    if (err) {
+      console.error("DB ERROR:", err);
+      return res.status(500).json({ success: false });
+    }
 
-  if (user) {
-    req.session.user = user.username;
-    res.json({
-      success: true,
-      username: user.username,
-      isAdmin: user.isAdmin
-    });
-  } else {
-    res.status(400).json({ success: false });
-  }
+    if (!user) {
+      return res.status(400).json({ success: false });
+    }
+
+    // Compare hashed password
+    const match = await bcrypt.compare(password, user.password);
+    if (match) {
+      req.session.user = user.username;
+      res.json({
+        success: true,
+        username: user.username,
+        isAdmin: user.isAdmin === 1
+      });
+    } else {
+      res.status(400).json({ success: false });
+    }
+  });
 });
 
 app.post("/post", upload.single("media"), (req, res) => {
@@ -168,6 +200,19 @@ app.delete("/deleteComment/:id", (req, res) => {
         if (err) return res.status(500).json({ success: false });
         res.json({ success: true });
     });
+});
+
+app.post("/logout", (req, res) => {
+  if (!req.session) return res.json({ success: true });
+
+  req.session.destroy(err => {
+    if (err) {
+      console.error("Logout error:", err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+    res.clearCookie('connect.sid', { path: '/' });
+    res.json({ success: true });
+  });
 });
 
 // Start server
