@@ -42,8 +42,8 @@ db.serialize(() => {
 
 // Hardcoded users
 const users = [
-  { username: "user1", password: "password1" },
-  { username: "user2", password: "password2" }
+  { username: "user1", password: "password1", isAdmin: true },
+  { username: "user2", password: "password2", isAdmin: false }
 ];
 
 // Multer setup
@@ -56,10 +56,18 @@ const upload = multer({ storage });
 // Routes
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
-  const user = users.find(u => u.username === username && u.password === password);
+
+  const user = users.find(
+    u => u.username === username && u.password === password
+  );
+
   if (user) {
-    req.session.user = username;
-    res.json({ success: true });
+    req.session.user = user.username;
+    res.json({
+      success: true,
+      username: user.username,
+      isAdmin: user.isAdmin
+    });
   } else {
     res.status(400).json({ success: false });
   }
@@ -130,6 +138,36 @@ app.get("/posts", (req, res) => {
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.delete("/deletePost/:id", (req, res) => {
+    const postId = req.params.id;
+    // Only allow admins
+    if (!req.session.user) return res.status(401).json({ success: false });
+    const user = users.find(u => u.username === req.session.user);
+    if (!user?.isAdmin) return res.status(403).json({ success: false });
+
+    db.run("DELETE FROM posts WHERE id = ?", [postId], function(err) {
+        if (err) return res.status(500).json({ success: false });
+        db.run("DELETE FROM comments WHERE post_id = ?", [postId]);
+        res.json({ success: true });
+    });
+});
+app.delete("/deleteComment/:id", (req, res) => {
+    const commentId = req.params.id;
+
+    if (!req.session.user)
+        return res.status(401).json({ success: false });
+
+    const user = users.find(u => u.username === req.session.user);
+
+    if (!user || !user.isAdmin)
+        return res.status(403).json({ success: false });
+
+    db.run("DELETE FROM comments WHERE id = ?", [commentId], function(err) {
+        if (err) return res.status(500).json({ success: false });
+        res.json({ success: true });
+    });
 });
 
 // Start server

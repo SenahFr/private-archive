@@ -9,11 +9,16 @@ async function login() {
             body: JSON.stringify({ username, password })
         });
 
-        if (res.ok) {
-            document.getElementById("login").style.display = "none";
-            document.getElementById("app").style.display = "block"; // show post form
-            loadPosts(); // refresh feed
-        } else {
+       if (res.ok) {
+    const data = await res.json();
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    window.currentUser = data.username;
+    window.isAdmin = data.isAdmin;
+
+    loadPosts();
+} else {
             document.getElementById("loginError").innerText = "Login failed";
         }
     } catch (err) {
@@ -104,7 +109,7 @@ async function loadPosts() {
                 ${mediaHTML}
             `;
 
-            // PUBLIC COMMENT INPUT
+            // Public comment inputs
             const nameInput = document.createElement("input");
             nameInput.placeholder = "Your name (optional)";
             nameInput.id = "name-" + post.id;
@@ -121,15 +126,41 @@ async function loadPosts() {
             div.appendChild(commentInput);
             div.appendChild(commentButton);
 
-            // Existing comments
+            // Comments
             (data.comments || [])
                 .filter(c => c.post_id === post.id)
                 .forEach(c => {
+
                     let comDiv = document.createElement("div");
                     comDiv.className = "comment";
                     comDiv.innerText = `${c.username}: ${c.comment}`;
+
+                    if (window.isAdmin) {
+                        const deleteBtn = document.createElement("button");
+                        deleteBtn.innerText = "Delete";
+                        deleteBtn.style.marginLeft = "10px";
+                        deleteBtn.onclick = async () => {
+                            await fetch(`/deleteComment/${c.id}`, { method: "DELETE" });
+                            loadPosts();
+                        };
+                        comDiv.appendChild(deleteBtn);
+                    }
+
                     div.appendChild(comDiv);
                 });
+
+            // Admin delete post button
+            if (window.isAdmin) {
+                const deletePostBtn = document.createElement("button");
+                deletePostBtn.innerText = "Delete Post";
+                deletePostBtn.style.display = "block";
+                deletePostBtn.style.marginTop = "10px";
+                deletePostBtn.onclick = async () => {
+                    await fetch(`/deletePost/${post.id}`, { method: "DELETE" });
+                    loadPosts();
+                };
+                div.appendChild(deletePostBtn);
+            }
 
             container.appendChild(div);
         });
@@ -138,6 +169,5 @@ async function loadPosts() {
         console.error("Load posts error:", err);
     }
 }
-
 // Load feed immediately, even before login
 loadPosts();
