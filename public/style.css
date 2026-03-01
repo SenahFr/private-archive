@@ -1,32 +1,155 @@
+/* Reset and base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'ABC Monument Grotesk', Helvetica, sans-serif;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #eee;
-    max-width: 700px;
-    margin: auto;
-    padding: 20px;
+  background-color: #ededed;
+  color: #202020;
+  min-width: 1480px;
 }
 
-#login, #app {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
+/* Header / Nav */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background-color: transparent;
 }
 
-textarea {
-    width: 100%;
-    height: 60px;
+header h1 {
+  font-family: 'ABC Monument Grotesk Heavy', Helvetica, sans-serif;
+  font-size: 64px;
+  -webkit-text-stroke: 1px #000000;
+  color: transparent;
 }
 
-.post {
-    background: #ddd;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 6px;
+nav a {
+  font-family: 'ABC Monument Grotesk Regular', Helvetica, sans-serif;
+  font-size: 14px;
+  text-decoration: underline;
+  color: #000;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+nav a:hover {
+  color: #0c00ff;
+}
+
+/* Settings Dropdown */
+#settingsDropdown {
+  display: none;
+  position: absolute;
+  top: 50px;
+  right: 50px;
+  background: #fff;
+  border: 1px solid #9e9e9e;
+  border-radius: 5px;
+  padding: 10px;
+  min-width: 200px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+#settingsDropdown.show {
+  display: block;
+}
+
+/* Feed / Posts */
+.feed {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 100px 50px 50px 50px;
+}
+
+.post-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  width: 300px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.post-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
+/* Post header */
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Post title & description */
+.post-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.post-description {
+  font-size: 14px;
+  color: #292929;
+  line-height: 1.2;
+}
+
+/* Comments section */
+.comments {
+  margin-top: 10px;
 }
 
 .comment {
-    margin-left: 20px;
-    background: #ccc;
-    padding: 5px;
-    border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 5px;
+  border-top: 1px solid #ddd;
+  padding-top: 5px;
+}
+
+/* Comment input */
+.comment-input {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.comment-input input {
+  flex: 1;
+  padding: 5px;
+  font-size: 12px;
+}
+
+.comment-input button {
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  background: #d9d9d9;
+  border: 1px solid #9e9e9e;
+  border-radius: 5px;
+}
+
+.comment-input button:hover {
+  background: #c0c0c0;
+}
+
+/* Admin Panel */
+#adminPanel {
+  display: none;
+  position: fixed;
+  top: 120px;
+  right: 50px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }

@@ -1,35 +1,85 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Private Archive</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Private Archive</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
-
 <body>
+  <!-- LOGIN SCREEN -->
+  <div id="login" class="login-screen">
+    <h2>Login</h2>
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
 
-    <!-- LOGIN FORM -->
-    <div id="login">
-        <h2>Login to post</h2>
-        <input id="username" placeholder="Username"><br><br>
-        <input id="password" type="password" placeholder="Password"><br><br>
-        <button onclick="login()">Login</button>
-        <p id="loginError" style="color:red;"></p>
+    <h3>Request Access</h3>
+    <input id="registerUsername" placeholder="New username">
+    <input id="registerPassword" type="password" placeholder="New password">
+    <button onclick="registerUser()">Request Access</button>
+
+    <p id="loginError"></p>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" style="display:none;">
+    <!-- HEADER -->
+    <header>
+      <h1>Let's Share In This Together &lt;3</h1>
+      <nav>
+        <a href="#" id="settingsLink">Settings</a>
+        <a href="#" id="logoutLink">Logout</a>
+      </nav>
+    </header>
+
+    <!-- Settings Dropdown -->
+    <div id="settingsDropdown" style="display:none;">
+      <h3>Account Settings</h3>
+      <form id="updateSettingsForm">
+        <label for="newUsername">New Username</label>
+        <input type="text" id="newUsername" name="newUsername" required>
+
+        <label for="newPassword">New Password</label>
+        <input type="password" id="newPassword" name="newPassword" required>
+
+        <label for="currentPassword">Current Password</label>
+        <input type="password" id="currentPassword" name="currentPassword" required>
+
+        <button type="submit">Update</button>
+      </form>
     </div>
 
-    <!-- POST FORM: Only visible after login -->
-    <div id="app" style="display:none;">
-        <h2>Post something</h2>
-        <textarea id="textPost" placeholder="Write something..."></textarea><br><br>
-        <input type="file" id="mediaInput"><br><br>
-        <button onclick="createPost()">Post</button>
-        <button id="logoutBtn">Logout</button>
+    <!-- FEED -->
+    <div id="feed" class="feed"></div>
+
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel" style="display:none;">
+      <h3>Pending Users</h3>
+      <ul id="pendingUsersList"></ul>
     </div>
+  </div>
 
-    <!-- POSTS FEED: Always visible -->
-    <h1>Archive Feed</h1>
-    <div id="posts"></div>
+  <!-- SCRIPT -->
+  <script src="/app.js" defer></script>
 
-    <script src="app.js"></script>
+  <script>
+    // Settings dropdown toggle
+    const settingsLink = document.getElementById('settingsLink');
+    const settingsDropdown = document.getElementById('settingsDropdown');
+
+    settingsLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      settingsDropdown.style.display = settingsDropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Logout link
+    const logoutLink = document.getElementById('logoutLink');
+    logoutLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/logout', { method: 'POST' });
+      if (res.ok) location.reload();
+    });
+  </script>
 </body>
 </html>
