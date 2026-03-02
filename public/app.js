@@ -5,6 +5,8 @@ const el = {};
 
 document.addEventListener("DOMContentLoaded", () => {
   el.loginError = document.getElementById("loginError");
+  el.loginStrip = document.getElementById("loginStrip");
+  el.currentUsernameLabel = document.getElementById("currentUsernameLabel");
   el.settingsLink = document.getElementById("settingsLink");
   el.settingsDropdown = document.getElementById("settingsDropdown");
   el.logoutLink = document.getElementById("logoutLink");
@@ -14,6 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
   el.pendingUsersList = document.getElementById("pendingUsersList");
   el.createPostButton = document.getElementById("createPostButton");
   el.composer = document.getElementById("composer");
+  el.createColumn = document.getElementById("createColumn");
+  el.mainGrid = document.getElementById("mainGrid");
+  el.heroGrid = document.getElementById("heroGrid");
 
   el.settingsLink.addEventListener("click", () => {
     el.settingsDropdown.classList.toggle("hidden");
@@ -28,9 +33,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function onAuthenticated() {
   el.loginError.textContent = "";
+  el.loginStrip.classList.add("hidden");
+  el.currentUsernameLabel.textContent = window.currentUser || "";
+  el.currentUsernameLabel.classList.remove("hidden");
   el.settingsLink.classList.remove("hidden");
   el.logoutLink.classList.remove("hidden");
   el.composer.classList.remove("hidden");
+  el.createColumn.classList.remove("hidden");
+  el.mainGrid.classList.add("authenticated");
+  el.heroGrid.classList.add("authenticated");
 }
 
 async function login() {
@@ -92,6 +103,7 @@ async function updateSettings(event) {
 
       if (newUsername) {
         window.currentUser = newUsername;
+        el.currentUsernameLabel.textContent = window.currentUser;
       }
 
       return;

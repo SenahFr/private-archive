@@ -42,12 +42,11 @@ db.serialize(() => {
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
-db.run("ALTER TABLE posts ADD COLUMN subject TEXT", (err) => {
+  db.run("ALTER TABLE posts ADD COLUMN subject TEXT", (err) => {
     if (err && !String(err.message).includes("duplicate column name")) {
       console.error("Failed to ensure posts.subject column:", err.message);
     }
   });
-
 
   db.run(`CREATE TABLE IF NOT EXISTS comments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,7 +72,6 @@ db.get("SELECT COUNT(*) AS count FROM users", async (err, row) => {
   }
 });
 
-// Multer setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads"),
   filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname)
@@ -131,7 +129,6 @@ app.post("/updateSettings", async (req, res) => {
 
     const updatedUsername = newUsername && newUsername.trim() !== "" ? newUsername.trim() : user.username;
     const updatedPasswordHash = newPassword && newPassword.trim() !== "" ? await bcrypt.hash(newPassword, 10) : user.password;
-
     db.run("UPDATE users SET username = ?, password = ? WHERE id = ?", [updatedUsername, updatedPasswordHash, user.id], function(err2) {
       if (err2) return res.status(500).json({ success: false, error: err2.message });
       req.session.user = updatedUsername;
@@ -159,7 +156,7 @@ app.post("/post", upload.single("media"), (req, res) => {
   const subject = requestedSubject || "I wanted you to see this<3";
   const media = req.file ? req.file.filename : null;
 
-    db.run("INSERT INTO posts (username, subject, text, media) VALUES (?, ?, ?, ?)", [req.session.user, subject, text, media], function(err) {
+  db.run("INSERT INTO posts (username, subject, text, media) VALUES (?, ?, ?, ?)", [req.session.user, subject, text, media], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true, postId: this.lastID });
   });
