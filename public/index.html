@@ -7,79 +7,82 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <!-- LOGIN SCREEN -->
-  <div id="login" class="login-screen">
-    <h2>Login</h2>
-    <input id="username" placeholder="Username">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
+  <main class="layout">
+    <section class="hero-grid page-grid">
+      <section class="hero">
+      <div class="title-lockup" aria-label="Let's Share In This Together less than three">
+        <h1 class="title-line title-line-top">Let&apos;s Share In</h1>
+        <h1 class="title-line title-line-bottom">This Together&lt;3</h1>
+      </div>
 
-    <h3>Request Access</h3>
-    <input id="registerUsername" placeholder="New username">
-    <input id="registerPassword" type="password" placeholder="New password">
-    <button onclick="registerUser()">Request Access</button>
+      <div class="login-strip">
+        <input id="username" placeholder="Username" autocomplete="username">
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+        <button class="login-button" type="button" onclick="login()">Login</button>
+        <span class="login-copy">to post</span>
+      </div>
 
-    <p id="loginError"></p>
-  </div>
+      <p id="loginError" class="error-text"></p>
 
-  <!-- MAIN APP -->
-  <div id="app" style="display:none;">
-    <!-- HEADER -->
-    <header>
-      <h1>Let's Share In This Together &lt;3</h1>
-      <nav>
-        <a href="#" id="settingsLink">Settings</a>
-        <a href="#" id="logoutLink">Logout</a>
-      </nav>
-    </header>
+      <div class="account-links">
+        <button id="settingsLink" class="link-button hidden" type="button">Settings</button>
+        <button id="logoutLink" class="link-button hidden" type="button">Logout</button>
+      </div>
 
-    <!-- Settings Dropdown -->
-    <div id="settingsDropdown" style="display:none;">
-      <h3>Account Settings</h3>
-      <form id="updateSettingsForm">
-        <label for="newUsername">New Username</label>
-        <input type="text" id="newUsername" name="newUsername" required>
+      <section id="settingsDropdown" class="settings-panel hidden">
+        <h3>Account Settings</h3>
+        <form id="updateSettingsForm" class="settings-form">
+          <label for="newUsername">New Username</label>
+          <input type="text" id="newUsername" name="newUsername" placeholder="Optional">
+          <label for="newPassword">New Password</label>
+          <input type="password" id="newPassword" name="newPassword" placeholder="Optional">
+          <label for="currentPassword">Current Password</label>
+          <input type="password" id="currentPassword" name="currentPassword" required>
+          <button class="login-button" type="submit">Update</button>
+        </form>
+      </section>
+          </section>
+      <div class="hero-spacer" aria-hidden="true"></div>
+    </section>
 
-        <label for="newPassword">New Password</label>
-        <input type="password" id="newPassword" name="newPassword" required>
+    <section class="main-grid page-grid">
+      <section class="feed-column">
+        <h2>Feed</h2>
+        <div class="section-rule"></div>
 
-        <label for="currentPassword">Current Password</label>
-        <input type="password" id="currentPassword" name="currentPassword" required>
+        <section id="composer" class="composer hidden">
+          <input type="text" id="subjectPost" placeholder="Subject / title (optional)">
+          <textarea id="textPost" rows="3" placeholder="Share something..."></textarea>
+          <div class="composer-row">
+            <input type="file" id="mediaInput" accept="image/*,video/*">
+            <button id="createPostButton" class="login-button" type="button">Post</button>
+          </div>
+        </section>
 
-        <button type="submit">Update</button>
-      </form>
-    </div>
+        <section id="feed" class="feed"></section>
+      </section>
 
-    <!-- FEED -->
-    <div id="feed" class="feed"></div>
+      <aside class="about-column">
+        <h2>About</h2>
+        <div class="section-rule"></div>
+        <p>
+          Media feed of the creative correspondence between Senah and her friend Azahar.
+          If you want to be our friend <strong><u>just say so</u></strong>.
+        </p>
+        <div class="section-rule"></div>
+        <div class="about-links">
+          <a href="#">Test</a>
+          <a href="#">March 2026</a>
+        </div>
+      </aside>
+    </section>
 
-    <!-- ADMIN PANEL -->
-    <div id="adminPanel" style="display:none;">
+    <aside id="adminPanel" class="admin-panel hidden">
       <h3>Pending Users</h3>
       <ul id="pendingUsersList"></ul>
-    </div>
-  </div>
+    </aside>
+  </main>
 
-  <!-- SCRIPT -->
   <script src="/app.js" defer></script>
-
-  <script>
-    // Settings dropdown toggle
-    const settingsLink = document.getElementById('settingsLink');
-    const settingsDropdown = document.getElementById('settingsDropdown');
-
-    settingsLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      settingsDropdown.style.display = settingsDropdown.style.display === 'block' ? 'none' : 'block';
-    });
-
-    // Logout link
-    const logoutLink = document.getElementById('logoutLink');
-    logoutLink.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const res = await fetch('/logout', { method: 'POST' });
-      if (res.ok) location.reload();
-    });
-  </script>
 </body>
 </html>

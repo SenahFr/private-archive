@@ -36,10 +36,18 @@ db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT,
+    subject TEXT,
     text TEXT,
     media TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
+
+db.run("ALTER TABLE posts ADD COLUMN subject TEXT", (err) => {
+    if (err && !String(err.message).includes("duplicate column name")) {
+      console.error("Failed to ensure posts.subject column:", err.message);
+    }
+  });
+
 
   db.run(`CREATE TABLE IF NOT EXISTS comments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -147,9 +155,11 @@ app.post("/post", upload.single("media"), (req, res) => {
   if (!req.session.user) return res.status(401).json({ success: false, error: "No user session" });
 
   const text = req.body.text || "";
+  const requestedSubject = (req.body.subject || "").trim();
+  const subject = requestedSubject || "I wanted you to see this<3";
   const media = req.file ? req.file.filename : null;
 
-  db.run("INSERT INTO posts (username, text, media) VALUES (?, ?, ?)", [req.session.user, text, media], function(err) {
+    db.run("INSERT INTO posts (username, subject, text, media) VALUES (?, ?, ?, ?)", [req.session.user, subject, text, media], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true, postId: this.lastID });
   });
